@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FAQ — Royal Route Industries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0b0d12;
+      --white: #e8edf5;
+      --gold: #2a9d4e;
+      --gold-light: #34c45a;
+      --gray: #141820;
+      --gray-mid: #1e2435;
+      --gray-light: #888;
+    }
+
+    body {
+      background-color: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(30,100,60,0.06) 60px, rgba(30,100,60,0.06) 61px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(30,100,60,0.06) 60px, rgba(30,100,60,0.06) 61px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Nav */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 52px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .nav-link {
+      background: var(--gold);
+      color: var(--black);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .nav-link:hover { background: var(--gold-light); }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 52px;
+      animation: fadeDown 0.6s 0.1s ease both;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 10vw, 72px);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+    }
+
+    h1 span { color: var(--gold); }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--gray-light);
+      line-height: 1.6;
+    }
+
+    /* Category label */
+    .category {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin: 40px 0 16px;
+      animation: fadeDown 0.6s 0.2s ease both;
+    }
+
+    /* FAQ items */
+    .faq-item {
+      border: 1px solid var(--gray-mid);
+      margin-bottom: 8px;
+      animation: fadeDown 0.6s 0.25s ease both;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      width: 100%;
+      background: var(--gray);
+      border: none;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: left;
+      padding: 20px 24px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+
+    .faq-question:hover { background: #252525; }
+
+    .faq-icon {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--gold);
+      min-width: 20px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.3s ease;
+      background: #161616;
+      padding: 0 24px;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 300px;
+      padding: 20px 24px;
+    }
+
+    .faq-answer p {
+      font-size: 14px;
+      color: #aaa;
+      line-height: 1.7;
+    }
+
+    .faq-answer p strong { color: var(--gold); }
+
+    /* CTA */
+    .cta {
+      margin-top: 56px;
+      background: var(--gray);
+      border: 1px solid var(--gray-mid);
+      padding: 40px 36px;
+      text-align: center;
+      animation: fadeDown 0.6s 0.3s ease both;
+    }
+
+    .cta h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 40px;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+    }
+
+    .cta h2 span { color: var(--gold); }
+
+    .cta p {
+      font-size: 14px;
+      color: var(--gray-light);
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .cta-btn {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 2px;
+      padding: 16px 40px;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .cta-btn:hover { background: var(--gold-light); }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 480px) {
+      .faq-question { font-size: 14px; padding: 16px 18px; }
+      .faq-answer { padding: 0 18px; }
+      .faq-item.open .faq-answer { padding: 16px 18px; }
+      .cta { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a href="index.html" class="nav-logo"></a>
+    <a href="index.html" class="nav-link">Submit Request →</a>
+  </nav>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="badge">Got Questions?</div>
+    <h1>FREQUENTLY<br><span>ASKED</span></h1>
+    <p class="subtitle">Everything you need to know before submitting your request.</p>
+  </div>
+
+  <!-- THE PROCESS -->
+  <div class="category">The Process</div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      How does this service work?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>You fill out our car search form and pay a <strong>$155 search fee</strong>. We then go out and find cars that match your exact specs. Once we find options we like, we send them to you. You pick the one you want, sign a contract, and send us the bid money. We go win the car for you.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      How long does it take to find my car?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>It depends on what you're looking for. Common makes and models can be found within <strong>1–2 weeks</strong>. If you have very specific specs — rare color, low mileage, specific trim — it may take longer. We will keep you updated throughout the process.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      How many car options will you send me?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>We will send you <strong>a few options</strong> that match your specs so you can compare and pick the one you like best. You are never locked into a car you don't want.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      What happens after I pick a car?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>Once you pick a car you like, we send you a <strong>contract to sign</strong>. You then send us the bid money and we go place the bid on your behalf. If we win, the car is yours. Everything is documented and transparent.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      What does "winning a bid" mean?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>Many of the vehicles we source come from <strong>auto auctions</strong>. We place a bid on your behalf competing against other buyers. If our bid wins, the car is purchased for you at that price. This is how we're able to find quality cars at lower prices than dealerships.</p>
+    </div>
+  </div>
+
+  <!-- PAYMENTS & FEES -->
+  <div class="category">Payments & Fees</div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      What is the $155 search fee for?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>The $155 fee covers our time and effort to <strong>research, locate, and vet vehicles</strong> that match your specifications. This fee is paid upfront before the search begins and is separate from the actual cost of the car.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      Is the $155 search fee refundable?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p><strong>No — the $155 search fee is non-refundable.</strong> It compensates us for the time and work put into your search regardless of the outcome. However your bid money is always protected — see our refund policy below.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      Is my payment information secure?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>Yes. All payments are processed through <strong>Stripe</strong>, one of the most trusted payment platforms in the world. We never store your card information. You will also receive an email receipt from Stripe after payment.</p>
+    </div>
+  </div>
+
+  <!-- REFUNDS -->
+  <div class="category" id="refunds">Refunds</div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      Can I get my bid money back?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>Yes. You can request a full refund of your <strong>bid money at any time before a bid is won</strong>. Once the bid is won the sale is final — the car has been purchased and there is nothing we can do at that point.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      What if you never find a car that matches what I want?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>If we are completely unable to find a vehicle matching your specs, your <strong>bid money will be fully refunded</strong>. The $155 search fee however is non-refundable as the work was still performed.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      What if you don't win the bid?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>If we place a bid and don't win, you have two options — <strong>get your bid money back</strong> or let us continue searching and try again on another vehicle. The choice is always yours.</p>
+    </div>
+  </div>
+
+  <!-- GENERAL -->
+  <div class="category">General</div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      What types of cars can you find?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>We specialize in <strong>affordable used cars</strong>. Sedans, SUVs, trucks, coupes — if it's out there we can find it. The more flexible you are with your specs, the faster and easier the search will be.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      How do I know this is legit?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>Great question. Everything is done with a <strong>signed contract</strong> before any bid money changes hands. You will always know exactly where your money is and what it's being used for. We also document the entire process and keep you informed every step of the way.</p>
+    </div>
+  </div>
+
+  <div class="faq-item">
+    <button class="faq-question" onclick="toggle(this)">
+      How do I get started?
+      <span class="faq-icon">+</span>
+    </button>
+    <div class="faq-answer">
+      <p>Click the <strong>"Submit Request"</strong> button at the top of this page, fill out the form with your car specs, and pay the $155 search fee. We'll take it from there and reach out to you directly once we find options.</p>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <h2>READY TO FIND<br><span>YOUR CAR?</span></h2>
+    <p>Spots are limited. Submit your request today and let us do the work.</p>
+    <a href="index.html" class="cta-btn">Submit My Request →</a>
+  </div>
+
+</div>
+
+<script>
+  function toggle(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+    // Open clicked if it wasn't open
+    if (!isOpen) item.classList.add('open');
+  }
+</script>
+</body>
+</html>
