@@ -1,44 +1,17 @@
-// waitlist.js
-// Saves customer email to a simple log (console/Netlify logs)
-// In production you'd connect this to Mailchimp, Airtable, etc.
+module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
-  }
-
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Content-Type': 'application/json',
-  };
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    const { email, name } = JSON.parse(event.body);
-
-    if (!email) {
-      return {
-        statusCode: 400,
-        headers,
-        body: JSON.stringify({ success: false, error: 'Email is required.' }),
-      };
-    }
-
-    // Log to Netlify function logs (visible in your Netlify dashboard)
-    console.log(`WAITLIST SIGNUP: ${name || 'Unknown'} — ${email} — ${new Date().toISOString()}`);
-
-    // TODO: Connect to Mailchimp, Airtable, or your email provider here
-
-    return {
-      statusCode: 200,
-      headers,
-      body: JSON.stringify({ success: true }),
-    };
-
+    const { email, name } = req.body;
+    if (!email) return res.status(400).json({ success: false, error: 'Email is required.' });
+    console.log(`WAITLIST: ${name || 'Unknown'} — ${email} — ${new Date().toISOString()}`);
+    return res.status(200).json({ success: true });
   } catch (err) {
-    return {
-      statusCode: 500,
-      headers,
-      body: JSON.stringify({ success: false, error: err.message }),
-    };
+    return res.status(500).json({ success: false, error: err.message });
   }
 };

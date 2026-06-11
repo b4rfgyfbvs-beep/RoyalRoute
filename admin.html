@@ -189,7 +189,7 @@
 
     // Test password by calling admin-toggle with a status check
     try {
-      const res = await fetch('/.netlify/functions/admin-toggle', {
+      const res = await fetch('/api/admin-toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pw, action: 'setSpots', spotsTaken: null }),
@@ -212,7 +212,7 @@
 
   async function loadStatus() {
     try {
-      const res = await fetch('/.netlify/functions/check-status');
+      const res = await fetch('/api/check-status');
       const data = await res.json();
       const statusEl = document.getElementById('siteStatusVal');
       statusEl.textContent = data.siteOpen ? 'OPEN' : 'CLOSED';
@@ -243,7 +243,7 @@
     document.getElementById('btnClose').disabled = true;
 
     try {
-      const res = await fetch('/.netlify/functions/admin-toggle', {
+      const res = await fetch('/api/admin-toggle', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: adminPassword, action }),
