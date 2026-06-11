@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
       amount: 15500,
       currency: 'usd',
       source: token,
-      description: `Car Search Fee - ${formData.name}`,
+      description: `Car Search Fee -`,
       metadata: { name: formData.name || '', email: formData.email || '', phone: formData.phone || '', make: formData.make || '', budgetMin: formData.budgetMin || '', budgetMax: formData.budgetMax || '' },
       receipt_email: formData.email,
     });
