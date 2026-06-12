@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Royal Route Industries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0b0d12; --white: #e8edf5; --gold: #2a9d4e;
+      --gold-light: #34c45a; --gray: #141820; --gray-mid: #1e2435;
+      --gray-light: #888; --green: #27ae60; --red: #c0392b;
+    }
+    body {
+      background: var(--black); color: var(--white);
+      font-family: 'DM Sans', sans-serif; min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(30,100,60,0.06) 60px, rgba(30,100,60,0.06) 61px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(30,100,60,0.06) 60px, rgba(30,100,60,0.06) 61px);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* Login */
+    .login-card {
+      background: var(--gray); border: 1px solid var(--gray-mid);
+      padding: 48px 40px; max-width: 400px; width: 100%;
+      text-align: center; position: relative; z-index: 1;
+      animation: fadeDown 0.6s ease both;
+    }
+    .login-card h1 {
+      font-family: 'Bebas Neue', sans-serif; font-size: 40px;
+      letter-spacing: 2px; margin-bottom: 6px;
+    }
+    .login-card h1 span { color: var(--gold); }
+    .login-card p { font-size: 13px; color: var(--gray-light); margin-bottom: 28px; }
+    input[type="password"] {
+      width: 100%; background: var(--black); border: 1px solid #333;
+      color: var(--white); font-family: 'DM Sans', sans-serif;
+      font-size: 15px; padding: 13px 16px; outline: none;
+      transition: border-color 0.2s; margin-bottom: 12px; text-align: center;
+      letter-spacing: 4px;
+    }
+    input[type="password"]:focus { border-color: var(--gold); }
+    .login-btn {
+      width: 100%; background: var(--gold); color: var(--black);
+      border: none; font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; letter-spacing: 2px; padding: 14px;
+      cursor: pointer; transition: background 0.2s;
+    }
+    .login-btn:hover { background: var(--gold-light); }
+    .login-error { color: #e74c3c; font-size: 13px; margin-top: 10px; min-height: 18px; }
+
+    /* Dashboard */
+    .dashboard {
+      display: none; max-width: 500px; width: 100%;
+      position: relative; z-index: 1;
+      animation: fadeDown 0.6s ease both;
+    }
+    .dashboard.visible { display: block; }
+
+    .dash-header {
+      text-align: center; margin-bottom: 32px;
+    }
+    .dash-header h1 {
+      font-family: 'Bebas Neue', sans-serif; font-size: 44px;
+      letter-spacing: 2px; margin-bottom: 4px;
+    }
+    .dash-header h1 span { color: var(--gold); }
+    .dash-header p { font-size: 13px; color: var(--gray-light); }
+
+    .status-card {
+      background: var(--gray); border: 1px solid var(--gray-mid);
+      padding: 28px 32px; margin-bottom: 16px;
+    }
+    .status-row {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 20px;
+    }
+    .status-label { font-size: 13px; color: var(--gray-light); letter-spacing: 1px; text-transform: uppercase; }
+    .status-value {
+      font-family: 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 1px;
+    }
+    .status-value.open { color: var(--green); }
+    .status-value.closed { color: var(--red); }
+    .status-value.gold { color: var(--gold); }
+
+    .spots-visual {
+      display: flex; gap: 8px; margin-bottom: 28px;
+    }
+    .spot-dot {
+      flex: 1; height: 10px; background: var(--gold);
+      transition: background 0.3s;
+    }
+    .spot-dot.taken { background: #333; }
+
+    .action-btn {
+      width: 100%; border: none; font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px; letter-spacing: 2px; padding: 16px;
+      cursor: pointer; transition: background 0.2s; margin-bottom: 10px;
+    }
+    .btn-open { background: var(--green); color: var(--white); }
+    .btn-open:hover { background: #2ecc71; }
+    .btn-close { background: var(--red); color: var(--white); }
+    .btn-close:hover { background: #e74c3c; }
+    .action-btn:disabled { background: #333; color: #666; cursor: not-allowed; }
+
+    .note {
+      font-size: 12px; color: #555; text-align: center; line-height: 1.6; margin-top: 8px;
+    }
+
+    .msg {
+      padding: 14px 18px; font-size: 14px; margin-bottom: 16px; text-align: center;
+      display: none;
+    }
+    .msg.visible { display: block; }
+    .msg.success { background: rgba(39,174,96,0.12); border: 1px solid rgba(39,174,96,0.3); color: #2ecc71; }
+    .msg.error { background: rgba(192,57,43,0.12); border: 1px solid rgba(192,57,43,0.3); color: #e74c3c; }
+
+    .logout {
+      text-align: center; margin-top: 24px;
+      font-size: 13px; color: #555; cursor: pointer; text-decoration: underline;
+    }
+    .logout:hover { color: var(--gray-light); }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div class="login-card" id="loginCard">
+    <h1>ADMIN <span>ACCESS</span></h1>
+    <p>Enter your admin password to manage your site.</p>
+    <input type="password" id="passwordInput" placeholder="••••••••" onkeydown="if(event.key==='Enter') login()" />
+    <button class="login-btn" onclick="login()">ENTER</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard" id="dashboard">
+    <div class="dash-header">
+      <h1>SITE <span>CONTROL</span></h1>
+      <p>Manage your car search spots and availability.</p>
+    </div>
+
+    <div class="msg" id="actionMsg"></div>
+
+    <div class="status-card">
+      <div class="status-row">
+        <span class="status-label">Site Status</span>
+        <span class="status-value" id="siteStatusVal">—</span>
+      </div>
+      <div class="status-row" style="margin-bottom:16px;">
+        <span class="status-label">Spots Taken</span>
+        <span class="status-value gold" id="spotsTakenVal">—</span>
+      </div>
+      <div class="spots-visual" id="spotsVisual"></div>
+
+      <button class="action-btn btn-open" id="btnOpen" onclick="doAction('open')">
+        ✓ OPEN SITE & RESET SPOTS
+      </button>
+      <button class="action-btn btn-close" id="btnClose" onclick="doAction('close')">
+        ✕ CLOSE SITE MANUALLY
+      </button>
+      <p class="note">Opening the site resets spots to 0 and sets status to Open.<br>The site closes automatically after 5 payments.</p>
+    </div>
+
+    <div class="logout" onclick="logout()">Log out</div>
+  </div>
+
+<script>
+  let adminPassword = '';
+
+  async function login() {
+    const pw = document.getElementById('passwordInput').value;
+    const errEl = document.getElementById('loginError');
+    errEl.textContent = '';
+
+    if (!pw) { errEl.textContent = 'Please enter your password.'; return; }
+
+    // Test password by calling admin-toggle with a status check
+    try {
+      const res = await fetch('/api/admin-toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pw, action: 'setSpots', spotsTaken: null }),
+      });
+      const data = await res.json();
+
+      if (res.status === 401) {
+        errEl.textContent = 'Incorrect password.';
+        return;
+      }
+
+      adminPassword = pw;
+      document.getElementById('loginCard').style.display = 'none';
+      document.getElementById('dashboard').classList.add('visible');
+      loadStatus();
+    } catch (e) {
+      errEl.textContent = 'Connection error. Try again.';
+    }
+  }
+
+  async function loadStatus() {
+    try {
+      const res = await fetch('/api/check-status');
+      const data = await res.json();
+      const statusEl = document.getElementById('siteStatusVal');
+      statusEl.textContent = data.siteOpen ? 'OPEN' : 'CLOSED';
+      statusEl.className = 'status-value ' + (data.siteOpen ? 'open' : 'closed');
+      document.getElementById('spotsTakenVal').textContent = `${data.spotsTaken} / ${data.totalSpots}`;
+      renderDots(data.spotsTaken, data.totalSpots);
+    } catch (e) {
+      console.error('Status load error', e);
+    }
+  }
+
+  function renderDots(taken, total) {
+    const container = document.getElementById('spotsVisual');
+    container.innerHTML = '';
+    for (let i = 0; i < total; i++) {
+      const d = document.createElement('div');
+      d.className = 'spot-dot' + (i < taken ? ' taken' : '');
+      container.appendChild(d);
+    }
+  }
+
+  async function doAction(action) {
+    const msgEl = document.getElementById('actionMsg');
+    msgEl.className = 'msg';
+    msgEl.textContent = '';
+
+    document.getElementById('btnOpen').disabled = true;
+    document.getElementById('btnClose').disabled = true;
+
+    try {
+      const res = await fetch('/api/admin-toggle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPassword, action }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        msgEl.textContent = action === 'open'
+          ? '✓ Site is now OPEN. Spots reset to 0. Redeploying...'
+          : '✓ Site is now CLOSED. Redeploying...';
+        msgEl.className = 'msg success visible';
+        setTimeout(loadStatus, 3000);
+      } else {
+        msgEl.textContent = data.error || 'Something went wrong.';
+        msgEl.className = 'msg error visible';
+      }
+    } catch (e) {
+      msgEl.textContent = 'Connection error. Try again.';
+      msgEl.className = 'msg error visible';
+    }
+
+    document.getElementById('btnOpen').disabled = false;
+    document.getElementById('btnClose').disabled = false;
+  }
+
+  function logout() {
+    adminPassword = '';
+    document.getElementById('dashboard').classList.remove('visible');
+    document.getElementById('loginCard').style.display = 'block';
+    document.getElementById('passwordInput').value = '';
+  }
+</script>
+</body>
+</html>
