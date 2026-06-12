@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Royal Route Industries</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black: #0b0d12;
+      --white: #e8edf5;
+      --gold: #2a9d4e;
+      --gold-light: #34c45a;
+      --red: #c0392b;
+      --gray: #141820;
+      --gray-mid: #1e2435;
+      --gray-light: #888;
+    }
+
+    body {
+      background-color: var(--black);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background texture */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        repeating-linear-gradient(0deg, transparent, transparent 60px, rgba(30,100,60,0.06) 60px, rgba(30,100,60,0.06) 61px),
+        repeating-linear-gradient(90deg, transparent, transparent 60px, rgba(30,100,60,0.06) 60px, rgba(30,100,60,0.06) 61px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 60px 24px 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 48px;
+      animation: fadeDown 0.7s ease both;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--gold);
+      color: var(--black);
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(52px, 10vw, 80px);
+      line-height: 0.95;
+      letter-spacing: 2px;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    h1 span { color: var(--gold); }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--gray-light);
+      line-height: 1.6;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+  
+
+    /* Steps */
+    .how-it-works {
+      margin-bottom: 40px;
+      animation: fadeDown 0.7s 0.25s ease both;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 16px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .step { border-left: 2px solid #1a3a6e;
+      background: var(--gray);
+      border: 1px solid var(--gray-mid);
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--gold);
+      line-height: 1;
+      min-width: 24px;
+    }
+
+    .step-text {
+      font-size: 13px;
+      color: var(--gray-light);
+      line-height: 1.5;
+    }
+
+    .step-text strong {
+      display: block;
+      color: var(--white);
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    /* Form */
+    .form-card { border-top: 3px solid #1a3a6e;
+      background: var(--gray);
+      border: 1px solid var(--gray-mid);
+      padding: 36px;
+      animation: fadeDown 0.7s 0.35s ease both;
+    }
+
+    .form-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 1px;
+      margin-bottom: 28px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--gray-mid);
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      margin-bottom: 8px;
+    }
+
+    label span.req { color: var(--gold); margin-left: 2px; }
+
+    input, select, textarea {
+      width: 100%;
+      background: var(--black);
+      border: 1px solid #333;
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      padding: 12px 16px;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    input::placeholder, textarea::placeholder { color: #555; }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+    }
+
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      cursor: pointer;
+    }
+
+    select option { background: var(--gray); }
+
+    textarea { resize: vertical; min-height: 90px; }
+
+    .budget-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Divider */
+    .form-divider {
+      border: none;
+      border-top: 1px solid var(--gray-mid);
+      margin: 28px 0;
+    }
+
+    /* Refund policy */
+    .policy-box {
+      background: rgba(30,100,60,0.08);
+      border: 1px solid rgba(42,157,78,0.25);
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .policy-box p {
+      font-size: 13px;
+      color: #aaa;
+      line-height: 1.6;
+    }
+
+    .policy-box strong { color: var(--gold); }
+
+    /* Checkbox */
+    .checkbox-group {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      background: rgba(42,157,78,0.06);
+      border: 1px solid rgba(42,157,78,0.25);
+      padding: 16px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: 28px;
+      min-width: 28px;
+      height: 28px;
+      padding: 0;
+      margin-top: 1px;
+      accent-color: #2a9d4e;
+      cursor: pointer;
+      -webkit-appearance: checkbox;
+      appearance: checkbox;
+    }
+
+    .checkbox-group label {
+      font-size: 14px;
+      text-transform: none;
+      letter-spacing: 0;
+      color: #aaa;
+      line-height: 1.5;
+      margin-bottom: 0;
+      cursor: pointer;
+    }
+
+    /* Payment section */
+    .payment-section {
+      margin-bottom: 24px;
+    }
+
+    .payment-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--gray-light);
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    #card-element {
+      background: var(--black);
+      border: 1px solid #333;
+      padding: 13px 16px;
+      transition: border-color 0.2s;
+    }
+
+    #card-element.focused { border-color: var(--gold); }
+    #card-errors {
+      color: #e74c3c;
+      font-size: 13px;
+      margin-top: 8px;
+      min-height: 18px;
+    }
+
+    .fee-display {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 0;
+      border-top: 1px solid var(--gray-mid);
+      border-bottom: 1px solid var(--gray-mid);
+      margin-bottom: 20px;
+    }
+
+    .fee-label { font-size: 14px; color: var(--gray-light); }
+    .fee-amount {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 32px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%;
+      background: var(--gold);
+      color: var(--black);
+      border: none;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 2px;
+      padding: 18px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .submit-btn:hover { background: var(--gold-light); }
+    .submit-btn:active { transform: scale(0.99); }
+    .submit-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+    .submit-note {
+      text-align: center;
+      font-size: 12px;
+      color: #555;
+      margin-top: 12px;
+    }
+
+    /* Success state */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+      animation: fadeDown 0.5s ease both;
+    }
+
+    .success-screen.visible { display: block; }
+
+    .success-icon {
+      width: 72px;
+      height: 72px;
+      background: var(--gold);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 32px;
+    }
+
+    .success-screen h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      margin-bottom: 12px;
+      letter-spacing: 2px;
+    }
+
+    .success-screen p {
+      color: var(--gray-light);
+      font-size: 15px;
+      line-height: 1.6;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    /* Full spots screen */
+    .full-screen {
+      display: none;
+      text-align: center;
+      padding: 60px 24px;
+    }
+    .full-screen.visible { display: block; }
+    .full-screen h2 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      color: var(--red);
+      margin-bottom: 12px;
+    }
+    .full-screen p { color: var(--gray-light); font-size: 15px; line-height: 1.6; }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(0,0,0,0.3);
+      border-top-color: var(--black);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 540px) {
+      .form-row, .budget-row, .steps { grid-template-columns: 1fr; }
+      .form-card { border-top: 3px solid #1a3a6e; padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:24px;position:relative;z-index:1;">
+    <a href="faq.html" style="color:var(--gold);font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;text-decoration:none;border-bottom:1px solid var(--gold);padding-bottom:2px;">FAQ</a>
+  </div>
+
+  <div class="header">
+    <div class="badge">Royal Route Industries</div>
+    <h1>WE FIND<br><span>YOUR CAR</span></h1>
+    <p class="subtitle">Tell us exactly what you want. We search, you choose. The royal way.</p>
+  </div>
+
+  <!-- How it works -->
+  <div class="how-it-works">
+    <div class="section-label">How it works</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-text"><strong>Submit & Pay</strong>Fill out your car specs and pay the $155 search fee.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-text"><strong>We Search</strong>We find cars matching your exact specs. Timeline varies by request.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-text"><strong>You Pick</strong>We send you options. You choose the one you want.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-text"><strong>We Bid & Win</strong>Sign a contract, send bid money, and we go win it for you.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main form -->
+  <div class="form-card" id="formCard">
+    <div class="form-title">Car Search Request</div>
+
+    <div id="formContent">
+      <!-- Personal Info -->
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name <span class="req">*</span></label>
+          <input type="text" id="firstName" placeholder="John" />
+        </div>
+        <div class="form-group">
+          <label>Last Name <span class="req">*</span></label>
+          <input type="text" id="lastName" placeholder="Doe" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Phone Number <span class="req">*</span></label>
+          <input type="tel" id="phone" placeholder="(555) 000-0000" />
+        </div>
+        <div class="form-group">
+          <label>Email <span class="req">*</span></label>
+          <input type="email" id="email" placeholder="john@email.com" />
+        </div>
+      </div>
+
+      <hr class="form-divider"/>
+
+      <!-- Search Type Selection -->
+      <div class="section-label" style="margin-bottom:16px;">Search Preference <span class="req">*</span></div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px;">
+        <div id="optionSpecs" onclick="selectOption('specs')" style="background:var(--gray-mid);border:2px solid var(--gray-mid);padding:18px 16px;cursor:pointer;transition:all 0.2s;text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:6px;">I KNOW WHAT I WANT</div>
+          <div style="font-size:12px;color:var(--gray-light);line-height:1.5;">I'll fill out my exact specs and you find it for me.</div>
+        </div>
+        <div id="optionBudget" onclick="selectOption('budget')" style="background:var(--gray-mid);border:2px solid var(--gray-mid);padding:18px 16px;cursor:pointer;transition:all 0.2s;text-align:center;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--white);letter-spacing:1px;margin-bottom:6px;">FIND ME SOMETHING</div>
+          <div style="font-size:12px;color:var(--gray-light);line-height:1.5;">I trust you — just find me the best deal within my budget.</div>
+        </div>
+      </div>
+
+      <div id="optionError" style="display:none;color:#e74c3c;font-size:13px;margin-bottom:16px;">⚠️ Please select a search preference above.</div>
+
+      <!-- Similar Options Note -->
+      <div style="background:rgba(26,58,110,0.12);border:1px solid rgba(26,58,110,0.3);padding:14px 18px;margin-bottom:24px;">
+        <p style="font-size:13px;color:#aaa;line-height:1.7;">💡 <strong style="color:var(--gold);">Note:</strong> Regardless of your preference, Royal Route Industries may include similar vehicle options alongside your results to give you the best possible choices.</p>
+      </div>
+
+      <!-- Full Specs (shown when I Know What I Want is selected) -->
+      <div id="specsSection" style="display:none;">
+        <div class="section-label" style="margin-bottom:16px;">Car Specifications</div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Preferred Make</label>
+            <input type="text" id="make" placeholder="e.g. Toyota, Honda..." />
+          </div>
+          <div class="form-group">
+            <label>Preferred Model</label>
+            <input type="text" id="model" placeholder="e.g. Camry, Civic..." />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Year Range</label>
+            <select id="yearFrom">
+              <option value="">From year</option>
+              <script>for(let y=2026;y>=1990;y--) document.write(`<option value="${y}">${y}</option>`)</script>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <select id="yearTo">
+              <option value="">To year</option>
+              <script>for(let y=2026;y>=1990;y--) document.write(`<option value="${y}">${y}</option>`)</script>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Max Mileage</label>
+            <input type="number" id="mileage" placeholder="e.g. 100000" />
+          </div>
+          <div class="form-group">
+            <label>Transmission</label>
+            <select id="transmission">
+              <option value="">No preference</option>
+              <option>Automatic</option>
+              <option>Manual</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Body Style</label>
+            <select id="bodyStyle">
+              <option value="">No preference</option>
+              <option>Sedan</option>
+              <option>SUV / Crossover</option>
+              <option>Truck</option>
+              <option>Coupe</option>
+              <option>Hatchback</option>
+              <option>Minivan</option>
+              <option>Wagon</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Preferred Color</label>
+            <input type="text" id="color" placeholder="e.g. Black, White, Any" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Must-Have Features / Notes</label>
+          <textarea id="notes" placeholder="e.g. Sunroof, backup camera, low miles, clean title only..."></textarea>
+        </div>
+      </div>
+
+      <!-- Budget Only (shown when Find Me Something is selected) -->
+      <div id="budgetSection" style="display:none;">
+        <div class="section-label" style="margin-bottom:16px;">Your Budget</div>
+        <div class="form-group">
+          <label>Any additional notes for us?</label>
+          <textarea id="budgetNotes" placeholder="e.g. I prefer SUVs, nothing too old, clean title only..."></textarea>
+        </div>
+      </div>
+
+      <!-- Budget Range (always shown) -->
+      <div class="form-group" id="budgetRangeGroup" style="display:none;">
+        <label>Budget Range <span class="req">*</span></label>
+        <div class="budget-row">
+          <input type="number" id="budgetMin" placeholder="Min $" min="0" />
+          <input type="number" id="budgetMax" placeholder="Max $" min="0" />
+        </div>
+      </div>
+
+      <hr class="form-divider"/>
+
+      <!-- Refund Policy -->
+      <div class="policy-box">
+        <p><strong>Refund Policy —</strong> The <strong>$155 search fee is non-refundable.</strong> Once you select a vehicle and a bid is won on your behalf, all bid funds are final and no refunds will be issued. You may request a refund of your <strong>bid money only</strong> at any time before a bid is won. If we are unable to find a matching vehicle, your bid money will be <strong>fully refunded</strong> — however the $155 search fee will not be returned.</p>
+        <p style="margin-top:10px;font-size:13px;">
+          <a href="faq.html#refunds" target="_blank" style="color:var(--gold);text-decoration:underline;font-weight:600;">Read full refund policy →</a>
+        </p>
+      </div>
+
+      <div class="checkbox-group" id="checkboxGroup">
+        <input type="checkbox" id="agreePolicy" onchange="clearCheckboxError()" />
+        <label for="agreePolicy">I have read and agree to the <a href="faq.html#refunds" target="_blank" style="color:var(--gold);text-decoration:underline;">refund policy</a>. I understand the $155 search fee is non-refundable, and that once a bid is won on my behalf, the sale is final.</label>
+      </div>
+      <div id="checkboxError" style="display:none;color:#e74c3c;font-size:13px;font-weight:600;padding:10px 14px;background:rgba(192,57,43,0.1);border:1px solid rgba(192,57,43,0.3);margin-bottom:16px;">
+        ⚠️ You must check the box above to agree to the refund policy before submitting.
+      </div>
+
+      <hr class="form-divider"/>
+
+      <!-- Why $155 -->
+      <div style="background:rgba(26,58,110,0.12);border:1px solid rgba(26,58,110,0.3);padding:20px 24px;margin-bottom:24px;">
+        <p style="font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Why We Charge $155</p>
+        <p style="font-size:14px;color:#aaa;line-height:1.8;">The $155 search fee reflects the time, effort, and dedication we put into finding you the right car. We don't just pull up a random listing — we carefully research, vet, and hand-select vehicles that match your exact specifications. Our goal is to save you time, protect you from bad deals, and deliver the best possible options. You're not just paying for a search. You're paying for our expertise, our standards, and our commitment to getting it right.</p>
+      </div>
+
+      <!-- Payment -->
+      <div class="payment-section">
+        <div class="section-label" style="margin-bottom:16px;">Payment</div>
+        <div class="fee-display">
+          <span class="fee-label">Search Fee (one-time)</span>
+          <span class="fee-amount">$155.00</span>
+        </div>
+        <span class="payment-label">Card Details</span>
+        <div id="card-element"></div>
+        <div id="card-errors"></div>
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="handleSubmit()">
+        PAY $155 &amp; SUBMIT REQUEST
+      </button>
+      <p class="submit-note">🔒 Payments secured by Stripe. Your card info is never stored.</p>
+    </div>
+  </div>
+
+  <!-- Success screen -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✓</div>
+    <h2>YOU'RE IN</h2>
+    <p>Your payment was received and your car search request has been submitted. We'll be in touch soon with options that match your specs.</p>
+  </div>
+
+  <!-- Full screen -->
+  <div class="full-screen" id="fullScreen">
+    <h2>SPOTS FULL</h2>
+    <p>All 5 search spots are currently taken. Check back soon or follow us on social media for updates on availability.</p>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+  // ── CONFIG ──────────────────────────────────────────────
+  const STRIPE_PUBLISHABLE_KEY = 'YOUR_STRIPE_PUBLISHABLE_KEY'; // 🔑 Replace this
+  const TOTAL_SPOTS = 5;
+
+  // EmailJS Config
+  const EMAILJS_SERVICE_ID = 'service_m6bagcx';
+  const EMAILJS_PUBLIC_KEY = '-fdywXq0YwPTBjSyT';
+  const EMAILJS_THANKYOU_TEMPLATE = 'template_fnvsu13';
+
+  // Initialize EmailJS
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+  // ────────────────────────────────────────────────────────
+
+  // Check site status on load
+  async function checkStatus() {
+    try {
+      const res = await fetch('/api/check-status');
+      const data = await res.json();
+      if (!data.siteOpen || data.spotsTaken >= data.totalSpots) {
+        window.location.href = 'booked.html';
+      }
+    } catch (e) {
+      // If status check fails, allow form to load
+      console.warn('Status check failed, allowing form to load.');
+    }
+  }
+
+  checkStatus();
+
+  let takenSpots = 0;
+
+  // Stripe setup
+  const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+  const elements = stripe.elements({
+    appearance: {
+      theme: 'night',
+      variables: {
+        colorPrimary: '#c9a84c',
+        colorBackground: '#0a0a0a',
+        colorText: '#f5f0e8',
+        colorDanger: '#e74c3c',
+        fontFamily: 'DM Sans, sans-serif',
+        borderRadius: '0px',
+      }
+    }
+  });
+
+  const cardElement = elements.create('card', {
+    style: {
+      base: {
+        color: '#f5f0e8',
+        fontFamily: 'DM Sans, sans-serif',
+        fontSize: '15px',
+        '::placeholder': { color: '#555' }
+      }
+    }
+  });
+
+  cardElement.mount('#card-element');
+  cardElement.on('focus', () => document.getElementById('card-element').classList.add('focused'));
+  cardElement.on('blur', () => document.getElementById('card-element').classList.remove('focused'));
+  cardElement.on('change', e => {
+    document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+  });
+
+  let selectedOption = ''; // 'specs' or 'budget'
+
+  function selectOption(type) {
+    selectedOption = type;
+    const specsBtn = document.getElementById('optionSpecs');
+    const budgetBtn = document.getElementById('optionBudget');
+    const specsSection = document.getElementById('specsSection');
+    const budgetSection = document.getElementById('budgetSection');
+    const budgetRange = document.getElementById('budgetRangeGroup');
+    const optErr = document.getElementById('optionError');
+
+    optErr.style.display = 'none';
+
+    if (type === 'specs') {
+      specsBtn.style.border = '2px solid var(--gold)';
+      specsBtn.style.background = 'rgba(42,157,78,0.1)';
+      budgetBtn.style.border = '2px solid var(--gray-mid)';
+      budgetBtn.style.background = 'var(--gray-mid)';
+      specsSection.style.display = 'block';
+      budgetSection.style.display = 'none';
+    } else {
+      budgetBtn.style.border = '2px solid var(--gold)';
+      budgetBtn.style.background = 'rgba(42,157,78,0.1)';
+      specsBtn.style.border = '2px solid var(--gray-mid)';
+      specsBtn.style.background = 'var(--gray-mid)';
+      specsSection.style.display = 'none';
+      budgetSection.style.display = 'block';
+    }
+    budgetRange.style.display = 'block';
+  }
+
+  function getVal(id) { return document.getElementById(id) ? document.getElementById(id).value.trim() : ''; }
+
+  function clearCheckboxError() {
+    document.getElementById('checkboxError').style.display = 'none';
+  }
+
+  async function handleSubmit() {
+    // Check spots
+    if (takenSpots >= TOTAL_SPOTS) return;
+
+    // Check option selected
+    if (!selectedOption) {
+      const optErr = document.getElementById('optionError');
+      optErr.style.display = 'block';
+      optErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // Validate required fields
+    const required = [
+      { id: 'firstName', label: 'First Name' },
+      { id: 'lastName', label: 'Last Name' },
+      { id: 'phone', label: 'Phone Number' },
+      { id: 'email', label: 'Email' },
+      { id: 'budgetMin', label: 'Budget Min' },
+      { id: 'budgetMax', label: 'Budget Max' },
+    ];
+
+    for (const f of required) {
+      if (!getVal(f.id)) {
+        alert(`Please fill in: ${f.label}`);
+        document.getElementById(f.id).focus();
+        return;
+      }
+    }
+
+    if (!document.getElementById('agreePolicy').checked) {
+      const errEl = document.getElementById('checkboxError');
+      errEl.style.display = 'block';
+      errEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>PROCESSING...';
+
+    const errEl = document.getElementById('card-errors');
+
+    // NOTE: In production, you create a PaymentIntent on your server
+    // and pass the client_secret here. This is a demo flow.
+    // For now, we'll simulate the payment token creation.
+    const { token, error } = await stripe.createToken(cardElement);
+
+    if (error) {
+      errEl.textContent = error.message;
+      btn.disabled = false;
+      btn.innerHTML = 'PAY $155 &amp; SUBMIT REQUEST';
+      return;
+    }
+
+    // Send token + form data to Netlify function to charge the card
+    const formData = {
+      name: `${getVal('firstName')} ${getVal('lastName')}`,
+      phone: getVal('phone'),
+      email: getVal('email'),
+      make: getVal('make'),
+      model: getVal('model'),
+      yearFrom: getVal('yearFrom'),
+      yearTo: getVal('yearTo'),
+      budgetMin: getVal('budgetMin'),
+      budgetMax: getVal('budgetMax'),
+      mileage: getVal('mileage'),
+      transmission: getVal('transmission'),
+      bodyStyle: getVal('bodyStyle'),
+      color: getVal('color'),
+      notes: getVal('notes'),
+    };
+
+    const response = await fetch('/api/charge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token.id, formData }),
+    });
+
+    const result = await response.json();
+
+    if (!result.success) {
+      errEl.textContent = result.error || 'Payment failed. Please try again.';
+      btn.disabled = false;
+      btn.innerHTML = 'PAY $155 &amp; SUBMIT REQUEST';
+      return;
+    }
+
+    // Update spots
+    takenSpots = Math.min(takenSpots + 1, TOTAL_SPOTS);
+    localStorage.setItem('takenSpots', takenSpots);
+
+    // Send thank you email to customer
+    try {
+      await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_THANKYOU_TEMPLATE, {
+        customer_name: formData.name,
+        customer_email: formData.email,
+        to_email: formData.email,
+      });
+    } catch (emailErr) {
+      console.warn('Email send failed:', emailErr);
+    }
+
+    // Show success
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('successScreen').classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+</body>
+</html>
