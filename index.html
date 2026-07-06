@@ -665,7 +665,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script>
   // ── CONFIG ──────────────────────────────────────────────
-  const STRIPE_PUBLISHABLE_KEY = 'pk_live_51TbW1kGgdz8RHgYZZ8pfYKotTGHbiJRmNnx9rwN5EdUYQCpUzYjV7AWNTQaWUeruoJdkBlCJKN1hw2pezSbUb5Nh0092ZYiIm1'; // 🔑 Replace this
+  const STRIPE_PUBLISHABLE_KEY = 'YOUR_STRIPE_PUBLISHABLE_KEY'; // 🔑 Replace this
   const TOTAL_SPOTS = 5;
 
   // EmailJS Config
@@ -677,16 +677,17 @@
   emailjs.init(EMAILJS_PUBLIC_KEY);
   // ────────────────────────────────────────────────────────
 
+  const GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxqrSfuo-0V0EzZmZq1--7AMmB7xCzVqDG1nnAYomCEv4TF1h5eq-fF61QDgqkdvGmGxQ/exec';
+
   // Check site status on load
   async function checkStatus() {
     try {
-      const res = await fetch('/api/check-status');
+      const res = await fetch(`${GOOGLE_SHEET_URL}?action=status`);
       const data = await res.json();
-      if (!data.siteOpen || data.spotsTaken >= data.totalSpots) {
+      if (!data.siteOpen) {
         window.location.href = 'booked.html';
       }
     } catch (e) {
-      // If status check fails, allow form to load
       console.warn('Status check failed, allowing form to load.');
     }
   }
